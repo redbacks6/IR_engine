@@ -1,13 +1,18 @@
 """
-Python Information Retrieval Engine
+Python Implementation of a 'bag of words' inverted index.
+
 Author: Luke Jones
 Email: lukealexanderjones@gmail.com/lukej1@student.unimelb.edu.au
 Student ID: 654645
 Date: 27 March 2015
 """
 
-### Use cPickle to store and retrieve inverted index.
-### REVIEW DOCUMENT NORMALISATION!!!
+"""
+TODO
+1) Review implementation of document normalisation
+2) implement token positions in index
+
+"""
 
 import nltk, re, os, math, numpy as np
 from glob import glob
@@ -18,28 +23,14 @@ try:
 except:
     import pickle 
 
-
-corpus = "/Users/lukejones/Desktop/corpus/this_old_man/doc*.txt"
-corpus1 = "/Users/lukejones/Desktop/University/web_search_and_text_analysis/proj1data/blogs/*.txt"
-output_index = '/Users/lukejones/Desktop/University/web_search_and_text_analysis/proj1index/index1.pkl'
-output_documents = '/Users/lukejones/Desktop/University/web_search_and_text_analysis/proj1index/documents1.pkl'
-
 porter = nltk.PorterStemmer()
 stopwords = nltk.corpus.stopwords.words('english')
 
 def main():
 	
 	# run_as_program()
-	index = IREngine()
-	index.build_index(corpus)
-	# # index.write_index_to_file(output_index, output_documents)
-	# # index.load_index(output_index, output_documents)
-	results = index.query('old man')
 
-	qrels = process_qrels(textfile)
-
-	print pp(results)
-
+	pass
 
 """
 This class creates an inverted index in the form of
@@ -47,7 +38,7 @@ This class creates an inverted index in the form of
 
 It also has a query function
 """
-class IREngine:
+class invertedindex:
 
 	def __init__(self):
 		#corpus = link to a corpus
@@ -57,6 +48,9 @@ class IREngine:
 		#inverted_index = {Term: IDF, [(DocID, No. Postings)]}
 		self.index = {}
 
+	"""
+	Builds an inverted index from a corpus
+	"""
 	def build_index(self, corpus):
 		self.corpus = corpus
 		process_corpus(self.corpus, self.index, self.documents)
@@ -117,6 +111,9 @@ class IREngine:
 
 """
 Processes corpus and updates an index and documents dictionary
+Input: link to corpus in the form of "/directory/subdirectory/*.txt"
+Output: Inverted index and documents list
+
 """
 def process_corpus(corpus, index, documents):
 	#build inverted index
@@ -159,7 +156,7 @@ def updateIDF(index, documents):
 	pass
 
 """
-Create an inverted index
+Adds a document to the inverted index
 Input: Document [filename, [tokens]]
        Inverted Index {} or {'token': (IDF, {'document': no. postings}}
 Output: Inverted Index
@@ -198,7 +195,7 @@ def process_text_doc(document):
 	return final_list
 
 """
-This function allows the user to run the IREngine as a 
+This function allows the user to run and query the inverted index as a 
 standalone console based program.
 """
 def run_as_program():
