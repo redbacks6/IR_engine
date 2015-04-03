@@ -12,6 +12,8 @@ TODO
 1) Review implementation of document normalisation
 2) implement token positions in index
 
+# the key is to merge two lists. Ask Kai if it gets too hard.
+
 """
 
 import nltk, re, os, math, numpy as np

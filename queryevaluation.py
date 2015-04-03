@@ -9,11 +9,6 @@ from pprint import pprint as pp
 from invertedindex import invertedindex
 import matplotlib.pyplot as plt
 
-corpus = '/Users/lukejones/Desktop/corpus/this_old_man/doc*.txt'
-textfile1 = "/Users/lukejones/Desktop/University/web_search_and_text_analysis/proj1data/qrels.february.txt"
-
-textfile = '/Users/lukejones/Desktop/corpus/qrels.this_old_man.txt'
-
 def main():
 
 	pass
