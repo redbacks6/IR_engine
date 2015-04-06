@@ -68,7 +68,7 @@ class invertedindex:
 	"""
 	Query Index
 	Input: Query as a string
-		   Inverted Index as {'token': (IDF, {'document': no. postings}}
+		   Inverted Index as {'token': [IDF, {'documentID': no. postings}]}
 	Method: Sum the results of TF x IDF for each document
 			Normalise by dividing by the length of the document
 	Output: Ranked results
@@ -160,9 +160,9 @@ def updateIDF(index, documents):
 """
 Adds a document to the inverted index
 Input: Document [filename, [tokens]]
-       Inverted Index {} or {'token': (IDF, {'document': no. postings}}
+       Inverted Index {} or {'token': [IDF, {'document': no. postings}]}
 Output: Inverted Index
-Return: {'token': (IDF, {'document': no. postings}}
+Return: {'token': [IDF, {'document': no. postings}]}
 """
 def add_doc_to_index(document, index):
 	
