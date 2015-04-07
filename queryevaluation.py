@@ -9,9 +9,10 @@ from pprint import pprint as pp
 from invertedindex import invertedindex
 import matplotlib.pyplot as plt
 
+
 def main():
 
-	pass
+    pass
 
 """
 Query evaluation object
@@ -26,47 +27,65 @@ Methods:
 	Print P-R Curve: Prints the P-R curve of a query	
 """
 
+"""
+Inputs:
+	Results: {QueryNumber: {docID: score}}
+	qrels: url
+	query: [int(topicnumber), str(query)]
+"""
 class queryevaluation:
 
-	def __init__(self, results, qrels, querynumber):
+    def __init__(self, results, qrels, query):
 
-		self.results = results
-		self.qrels, self.totalrelevant = process_qrels(qrels)
-		self.vector = results_vector(results[querynumber], self.qrels[querynumber])
-		self.pr_array = pr_array(self.vector, self.qrels[querynumber])
+        self.querytext = query[1]
+        self.querynumber = query[0]
+        self.results = results
+        self.qrels = process_qrels(qrels)
+        self.vector = results_vector(self.results[self.querynumber], self.qrels[self.querynumber])
+        self.pr_array = pr_array(self.vector, self.qrels[self.querynumber])
 
-	
-	"""
+    """
 	Mean Average Precision
 	"""
-	def MAP(self):
+    def MAP(self, query):
 
 		MAP = 0.0
 		for k in range(len(self.vector)):
-			MAP += self.vector[k] * prec_at_k(self.vector,k+1)
-			if k == 1000: break
-		
-		MAP = MAP/self.totalrelevant
+		    MAP += prec_at_k(self.vector, k+1)
 
-		return MAP
+		# print self.vector
+		# print pp(self.qrels[query])
+		# print len(self.qrels[query])
+		# print "\n"
 
-	"""
+		return MAP / len(self.vector)
+		# return MAP / len(self.qrels[query])
+
+    """
 	Print P-R Curve
 	"""
-	def print_prcurve(self):
-		precision = []
-		recall = []
+    def print_prcurve(self):
+        precision = []
+        recall = []
 
-		for i in self.pr_array:
-			precision.append(i[0])
-			recall.append(i[1])
+        for i in self.pr_array:
+            precision.append(i[0])
+            recall.append(i[1])
 
-		plt.plot(precision, recall)
-		plt.ylabel("Precision")
-		plt.xlabel("Recall")
-		plt.show()
+        plt.plot(precision, recall)
+        plt.ylabel("Precision")
+        plt.xlabel("Recall")
+        plt.title("Query %s: "%(self.querynumber)+self.querytext)
+        plt.show()
 
-		pass
+        pass
+
+    """
+	Return Precision at K
+	"""
+
+    def return_pratk(self, k):
+        return prec_at_k(self.vector, k)
 
 
 """
@@ -75,23 +94,17 @@ Input: ranked results {docID: rank_score}, qrels{docID: relevance}
 Output: binary results vector for each document []
 """
 def results_vector(results, qrels):
-	vector = []
-	finalvector = []
+	results_vector = []
 
-	for doc in results:
-		vector.append([doc, results[doc]])
+	rankedresults = [[docID, results[docID]] for docID in sorted(results, key = results.get, reverse = True)]
 
-	vector = sorted(vector, key = lambda vector: vector[1], reverse=True)
-
-	for result in vector:
+	for result in rankedresults:
 		if result[0] in qrels:
-			if qrels[result[0]] >= 1:
-				finalvector.append(1)
-			else:
-				finalvector.append(0)
-		else: finalvector.append(0)
+			results_vector.append(1)
+		else:
+			results_vector.append(0)
 
-	return finalvector
+	return results_vector
 
 
 """
@@ -102,10 +115,11 @@ outputs:
 	Relcount: int (number of relevant documents)
 
 """
+
+
 def process_qrels(file_ext):
 
 	qrels = {}
-	relcount = 0
 
 	with open(file_ext, 'r') as qfile:
 		for line in qfile:
@@ -113,72 +127,78 @@ def process_qrels(file_ext):
 
 			query_number = int(qrel[0])
 			docID = qrel[2]
-			relevance = qrel[3]
+			relevance = int(qrel[3])
 
-			if relevance >= 1:
-				relcount += 1
-
-			if query_number not in qrels:
+			if query_number not in qrels and relevance > 0:
 				qrels[query_number] = {docID: relevance}
-			else:
+			elif relevance > 0:
 				qrels[query_number][docID] = relevance
 
-	return qrels, relcount
+	return qrels
 
 
 """
 Precision at K
 """
-def prec_at_k(vector, k):
-	if k > len(vector):
-		return "k greater than results returned"
-	
-	#set length of vector based on results	
-	k_vector = vector[:k]
 
-	return precision(k_vector)
+
+def prec_at_k(vector, k):
+    if k > len(vector):
+        return "k greater than results returned"
+
+    # set length of vector based on results
+    k_vector = vector[:k]
+
+    return precision(k_vector)
 
 
 """
 Precision Recall Array
 Use to produce a PR Curve
 """
+
+
 def pr_array(vector, qrels):
 
-	pr_array = []
+    pr_array = []
 
-	for index, item in enumerate(vector):
-		point = [recall(vector[:index+1], qrels),precision(vector[:index+1])]
-		pr_array.append(point)
+    for index, item in enumerate(vector):
+        point = [
+            recall(vector[:index + 1], qrels), precision(vector[:index + 1])]
+        pr_array.append(point)
 
-	return pr_array
+    return pr_array
 
 
 """
 Precision
 """
-def	precision(vector):
-	#add the length of the vector
-	prec = 0.0
-	for result in vector:
-		prec += result
-	prec = prec/len(vector)
 
-	return prec
+
+def precision(vector):
+    # add the length of the vector
+    prec = 0.0
+    for result in vector:
+        prec += result
+    prec = prec / len(vector)
+
+    return prec
 
 
 """
 Recall
 """
-def recall(vector,qrels):
-	recall = 0.0
-	for result in vector:
-		recall += result
-	recall = recall/len(qrels)
 
-	return recall
+
+def recall(vector, qrels):
+    recall = 0.0
+    for result in vector:
+        recall += result
+    recall = recall / len(qrels)
+
+    return recall
 
 
 # Run the Main Method
 if __name__ == '__main__':
-    main()	
+    main()

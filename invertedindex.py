@@ -72,7 +72,7 @@ class invertedindex:
 	Method: Sum the results of TF x IDF for each document
 			Normalise by dividing by the length of the document
 	Output: Ranked results
-	Return: [document, score]
+	Return: {documentID, score}
 	"""
 	def query(self, terms):
 		query = process_text_doc(terms)
@@ -111,11 +111,11 @@ class invertedindex:
 		index_doc.close()
 		docs_doc.close()
 
+
 """
 Processes corpus and updates an index and documents dictionary
 Input: link to corpus in the form of "/directory/subdirectory/*.txt"
 Output: Inverted index and documents list
-
 """
 def process_corpus(corpus, index, documents):
 	#build inverted index
@@ -124,16 +124,17 @@ def process_corpus(corpus, index, documents):
 
 	print '\nProcessing Documents. Total Corpus size is %s documents' %(corpus_size)
 	
-	p = re.compile(ur'^(.*)\/(.*)(\..*)$')
+	filename = re.compile(ur'^(.*)\/(.*)(\..*)$')
 
 	for document in glob(corpus):
-		name = re.search(p,document)
+		name = re.search(filename, document)
 		docID = name.group(2)
 
 		raw = open(document).read()
-		doc = [docID ,process_text_doc(raw)]
-		documents[doc[0]] = {}
-		documents[doc[0]] = len(doc[1])
+		processed_doc = process_text_doc(raw)
+
+		doc = [docID , processed_doc]
+		documents[doc[0]] = document_normalisation(processed_doc)
 		index = add_doc_to_index(doc, index)
 		
 		if (count % 500) == 0:
@@ -156,6 +157,28 @@ def updateIDF(index, documents):
 		index[term][0] += math.log(N/dft)
 
 	pass
+
+"""
+Returns a document length normalisation factor
+"""
+def document_normalisation(processed_doc):
+	
+	document_terms = {}
+	normalisation_factor = 0.0
+
+	for term in processed_doc:
+		if term in document_terms:
+			document_terms[term] += 1.0
+		else: document_terms[term] = 1.0
+
+	total_terms = len(document_terms)
+
+	for term in document_terms:
+		normalisation_factor += document_terms[term]/total_terms
+
+	return math.sqrt(normalisation_factor)
+
+		
 
 """
 Adds a document to the inverted index
@@ -195,34 +218,6 @@ def process_text_doc(document):
 	final_list = [w for w in stemmed_tokens if w not in stopwords]
 
 	return final_list
-
-"""
-This function allows the user to run and query the inverted index as a 
-standalone console based program.
-"""
-def run_as_program():
-	#clear the console
-	os.system('cls' if os.name == 'nt' else 'clear')
-
-
-	print ('Welcome to the Information Retrieval Engine!')
-	print 'The IREngine takes a corpus in the form of directory/documents/*.txt ' \
-		  'and lets you query it.'
-	# keyboard = raw_input("\nEnter the location of your corpus: ")
-
-	index = IREngine()
-	index.load_index(output_index, output_documents)
-
-	print ('\nInformation Retrieval Engine is ready!')
-	print ('Enter your query or type quit() to quit.')
-
-	while True:
-		keyboard = raw_input("\nEnter your query here: ")
-		if keyboard.lower() == 'quit()':
-			break
-		else:
-			print('\nTop Results for query: %s' %(keyboard))
-			pp(index.query(keyboard)[:10])
 
 # Run the Main Method
 if __name__ == '__main__':
