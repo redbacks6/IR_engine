@@ -10,10 +10,7 @@ Date: 12 April 2015
 
 """
 TODO
-1) Review implementation of document normalisation
-2) implement token positions in index
-
-# the key is to merge two lists. Ask Kai if it gets too hard.
+1) 
 
 """
 
