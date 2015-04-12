@@ -9,12 +9,13 @@ Date: 24 March 2015
 import re
 import csv
 from pprint import pprint as pp
-from invertedindex import invertedindex
+from invertedindex2 import invertedindex
 from queryevaluation import queryevaluation
+from nltk.corpus import stopwords
 
 # Test corpus
-corpus = '/Users/lukejones/Desktop/corpus/this_old_man/doc*.txt'
-qrels = '/Users/lukejones/Desktop/corpus/qrels.this_old_man.txt'
+corpus = '/Users/lukejones/Desktop/University/web_search_and_text_analysis/test_corpus/this_old_man/doc*.txt'
+qrels = '/Users/lukejones/Desktop/University/web_search_and_text_analysis/test_corpus/qrels.this_old_man.txt'
 
 # Assignment corpus
 corpus1 = '/Users/lukejones/Desktop/University/web_search_and_text_analysis/proj1data/blogs/*.txt'
@@ -37,14 +38,15 @@ def main():
 
     index = invertedindex()
     # index.build_index(corpus1)
+
     # index.write_index_to_file(output_index, output_documents)
     index.load_index(output_index, output_documents)
+
+    # print pp([[docID, index.query(query)[docID]] for docID in sorted(index.query(query), key = index.query(query).get, reverse = True)])
 
     write_results(index, queries, output_file)
 
     # pr_curve(index, queries, 880)
-
-
 
     pass
 

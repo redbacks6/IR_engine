@@ -9,21 +9,18 @@ Date: 27 March 2015
 
 """
 TODO
-1) Review implementation of document normalisation
-2) implement token positions in index
-
-# the key is to merge two lists. Ask Kai if it gets too hard.
-
+1)
+2)
 """
 
-import nltk, re, os, math, numpy as np
+import nltk, re, os, math
 from glob import glob
 from pprint import pprint as pp
 from nltk.corpus import stopwords
 try:
     import cPickle as pickle
 except:
-    import pickle 
+    import pickle
 
 porter = nltk.PorterStemmer()
 stopwords = nltk.corpus.stopwords.words('english')

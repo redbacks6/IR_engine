@@ -23,20 +23,13 @@ Inputs:
 	Query number: int (reference number of the query)
 
 Methods: 
-	MAP: returns mean average precision of a query
-	Print P-R Curve: Prints the P-R curve of a query	
-"""
-
-"""
-Inputs:
-	Results: {QueryNumber: {docID: score}}
-	qrels: url
-	query: [int(topicnumber), str(query)]
+	MAP: returns mean average precision for a given query
+	Print P-R Curve: Prints the P-R curve for a given query
+    Precision@k: Returns the precision at k
 """
 class queryevaluation:
 
     def __init__(self, results, qrels, query):
-
         self.querytext = query[1]
         self.querynumber = query[0]
         self.results = results
@@ -46,20 +39,15 @@ class queryevaluation:
 
     """
 	Mean Average Precision
+    Returns: Mean average precision for a given query
 	"""
-    def MAP(self, query):
+    def MAP(self, query_no):
 
 		MAP = 0.0
 		for k in range(len(self.vector)):
-		    MAP += prec_at_k(self.vector, k+1)
+		    MAP += self.vector[k] * prec_at_k(self.vector, k+1)
 
-		# print self.vector
-		# print pp(self.qrels[query])
-		# print len(self.qrels[query])
-		# print "\n"
-
-		return MAP / len(self.vector)
-		# return MAP / len(self.qrels[query])
+		return MAP / len(self.qrels[query_no])
 
     """
 	Print P-R Curve
@@ -83,7 +71,6 @@ class queryevaluation:
     """
 	Return Precision at K
 	"""
-
     def return_pratk(self, k):
         return prec_at_k(self.vector, k)
 
@@ -115,8 +102,6 @@ outputs:
 	Relcount: int (number of relevant documents)
 
 """
-
-
 def process_qrels(file_ext):
 
 	qrels = {}
@@ -140,11 +125,11 @@ def process_qrels(file_ext):
 """
 Precision at K
 """
-
-
 def prec_at_k(vector, k):
     if k > len(vector):
-        return "k greater than results returned"
+        if len(vector) > 0:
+            k = len(vector)
+        else: return 0
 
     # set length of vector based on results
     k_vector = vector[:k]
@@ -156,8 +141,6 @@ def prec_at_k(vector, k):
 Precision Recall Array
 Use to produce a PR Curve
 """
-
-
 def pr_array(vector, qrels):
 
     pr_array = []
@@ -173,8 +156,6 @@ def pr_array(vector, qrels):
 """
 Precision
 """
-
-
 def precision(vector):
     # add the length of the vector
     prec = 0.0
@@ -188,8 +169,6 @@ def precision(vector):
 """
 Recall
 """
-
-
 def recall(vector, qrels):
     recall = 0.0
     for result in vector:
