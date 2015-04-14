@@ -9,21 +9,17 @@ Date: 24 March 2015
 import re
 import csv
 from pprint import pprint as pp
-from invertedindex import invertedindex
+from invertedindex2 import invertedindex
 from queryevaluation import queryevaluation
 
-# Test corpus
-corpus = '/Users/lukejones/Desktop/corpus/this_old_man/doc*.txt'
-qrels = '/Users/lukejones/Desktop/corpus/qrels.this_old_man.txt'
-
 # Assignment corpus
-corpus1 = '/Users/lukejones/Desktop/University/web_search_and_text_analysis/proj1data/blogs/*.txt'
+corpus = '/Users/lukejones/Desktop/University/web_search_and_text_analysis/proj1data/blogs/*.txt'
 queryfile = '/Users/lukejones/Desktop/University/web_search_and_text_analysis/proj1data/06.topics.851-900.txt'
-qrels1 = '/Users/lukejones/Desktop/University/web_search_and_text_analysis/proj1data/qrels.february.txt'
+qrels = '/Users/lukejones/Desktop/University/web_search_and_text_analysis/proj1data/qrels.february.txt'
 
 # Save and load index
-output_index = '/Users/lukejones/Desktop/University/web_search_and_text_analysis/proj1index/index2.pkl'
-output_documents = '/Users/lukejones/Desktop/University/web_search_and_text_analysis/proj1index/documents2.pkl'
+saved_index = '/Users/lukejones/Desktop/University/web_search_and_text_analysis/proj1index/index2.pkl'
+saved_documents = '/Users/lukejones/Desktop/University/web_search_and_text_analysis/proj1index/documents2.pkl'
 
 # Outputfile
 output_file = '/Users/lukejones/Desktop/Evaluation_Metrics2.csv'
@@ -36,23 +32,34 @@ def main():
     queries = extract_queries(queryfile)
 
     index = invertedindex()
-    # index.build_index(corpus1)
-    # index.write_index_to_file(output_index, output_documents)
-    index.load_index(output_index, output_documents)
 
-    write_results(index, queries, output_file)
+    # index.build_index(corpus)
+    # index.write_index_to_file(saved_index, saved_documents)
 
-    # pr_curve(index, queries, 880)
+    index.load_index(saved_index, saved_documents)
 
+    ranked_results(index, 'audi', 10)
+   
+    # write_results(index, queries, qrels output_file)
+
+    # pr_curve(index, queries, 860)
 
 
     pass
 
 """
+Query index
+"""
+def ranked_results(index, query, k = 10):
+    ranked_results = [[docID, index.query(query)[docID]] for docID in sorted(index.query(query), key = index.query(query).get, reverse = True)]
+
+    print pp(ranked_results[:k])
+
+"""
 Inputs: 
 Outputs: csv file with evaluation metrics
 """
-def write_results(index, queries, outputfile):
+def write_results(index, queries, qrels, outputfile):
 
     with open(outputfile, 'w') as outputcsv:
         writer = csv.DictWriter(
@@ -65,7 +72,7 @@ def write_results(index, queries, outputfile):
             data = {}
 
             results = {query[0]: index.query(query[1])}
-            evalu = queryevaluation(results, qrels1, query)
+            evalu = queryevaluation(results, qrels, query)
 
             data['query_no'] = query[0]
             data['query_text'] = query[1]
@@ -76,12 +83,12 @@ def write_results(index, queries, outputfile):
 
     pass
 
-def pr_curve(index, queries, query_no):
+def pr_curve(index, queries, qrels, query_no):
 
 	query_index = query_no - 851
 	query = queries[query_index]
 	results = {query[0]: index.query(query[1])}
-	evalu = queryevaluation(results, qrels1, query)
+	evalu = queryevaluation(results, qrels, query)
 
 	evalu.print_prcurve()
 

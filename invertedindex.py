@@ -33,7 +33,8 @@ def main():
 
 """
 This class creates an inverted index in the form of
-{Term: IDF, [(DocID, No. Postings)]}
+index = {'token': [IDF, {'documentID': [posting1, posting2, posting_i]}]}
+document = {‘DocID’:|w,d|}
 
 It also has a query function
 """
@@ -65,7 +66,6 @@ class invertedindex:
 	"""
 	Query Index
 	Input: Query as a string
-		   Inverted Index as {'token': [IDF, {'documentID': no. postings}]}
 	Method: Sum the results of TF x IDF for each document
 			Normalise by dividing by the length of the document
 	Output: Ranked results

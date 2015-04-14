@@ -34,9 +34,10 @@ def main():
 
 """
 This class creates an inverted index in the form of
-{'token': [IDF, {'documentID': [posting1, posting2]}]}
+index = {'token': [IDF, {'documentID': [posting1, posting2, posting_i]}]}
+document = {‘DocID’:|w,d|}
 
-Note: posting indices stored as offsets from previous
+Note: posting indices stored as raw integers
 
 It also has a query function (refer below)
 """
@@ -79,11 +80,16 @@ class invertedindex:
 	"""
 	Query Index
 	Input: Query as a string
-		   Inverted Index as {'token': [IDF, {'documentID': [posting1, posting2]}]}
-	Method: Sum the results of TF x IDF for each document
-			Normalise by dividing by the length of the document
+	Method: Check for phrase query
+			If phrase query:
+			 	then reduce documents to subset containing phrasequery
+				Sum the results of TF x IDF for each document
+				Normalise by dividing by the length of the document
+			Else: 
+				Sum the results of TF x IDF for each document
+				Normalise by dividing by the length of the document
 	Output: Ranked results
-	Return: {documentID: score}
+	Return: {DocID: score}
 	"""
 	def query(self, terms):
 		#indices for Document input
@@ -145,7 +151,8 @@ class invertedindex:
 
 	"""
 	Writes the index to a file for quick retrieval later
-	Input: URL of file
+	Input: URL for index and documents
+	Output: .pkl file for index and documents
 	"""
 	def write_index_to_file(self, index_url, documents_url):
 		index_doc = open(index_url,"wb")
@@ -201,6 +208,10 @@ def ranked_results(index, documents, terms, positional):
 Processes corpus and updates an index and documents dictionary
 Input: link to corpus in the form of "/directory/subdirectory/*.txt"
 Output: Inverted index and documents list
+Return:
+	index = {'token': [IDF, {'documentID': [posting1, posting2, posting_i]}]}
+	document = {‘DocID’:|w,d|}
+
 """
 def process_corpus(corpus, index, documents):
 	#build inverted index

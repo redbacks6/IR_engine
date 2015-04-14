@@ -71,7 +71,7 @@ class queryevaluation:
     """
 	Return Precision at K
 	"""
-    def return_pratk(self, k):
+    def return_pratk(self, k=10):
         return prec_at_k(self.vector, k)
 
 
