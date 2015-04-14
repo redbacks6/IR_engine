@@ -14,3 +14,5 @@ IR_engine.py
 math_script.py
 
 term_document_matrix.py
+
+*.zip
